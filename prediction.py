@@ -92,10 +92,10 @@ if st.button(predict_button):
     prediction_text = safe_text if prediction == 1 else unsafe_text
 
     # Display result
-    if prediction == 1:
-        st.success(prediction_text)
-    else:
-        st.error(prediction_text)
+    #if prediction == 1:
+    #    st.success(prediction_text)
+  #  else:
+   #     st.error(prediction_text) 
 
     # Add animation or GIF
     if prediction == 1:
