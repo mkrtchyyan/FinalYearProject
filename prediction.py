@@ -34,7 +34,7 @@ def set_background(image_file):
 
 
 # Set background image
-set_background("water.webp")
+set_background("vedrana-filipovic-ohrhLVISJ1o-unsplash.jpg")
 
 # Language Selection
 language = st.radio("🌍 Select Language / Ընտրեք Լեզուն", ("English", "Հայերեն"))
@@ -49,6 +49,9 @@ if language == "English":
     safe_text = "✅ Safe to drink!"
     unsafe_text = "❌ Unsafe! Do not drink!"
     issue_text = "Reasons why the water is unsafe:"
+    about_title = "### About This App"
+    about_text = "##### This app predicts water quality based on various parameters. Use the inputs to enter values and click 'Predict Water Quality' to see the result."
+    footer_text = "##### Made by Manan Mkrtchyan"
 else:
     title = "💧 Ջրի Որակի Գուշակություն"
     subtitle = "Ստուգեք՝ ջուրը խմելու համար անվտանգ է թե ոչ։"
@@ -58,6 +61,9 @@ else:
     safe_text = "✅ Անվտանգ է խմելու համար!"
     unsafe_text = "❌ Վտանգավոր է! Մի խմեք!"
     issue_text = "Պատճառները, թե ինչու է ջուրը վտանգավոր:"
+    about_title = "### Այս Հավելվածի Մասին"
+    about_text = "##### Այս հավելվածը կանխատեսում է ջրի որակը՝ հիմնվելով տարբեր պարամետրերի վրա։ Մուտքագրեք տվյալները և սեղմեք «Կանխատեսել Ջրի Որակը»՝ արդյունքը տեսնելու համար։"
+    footer_text = "##### Ստեղծվել է Մանան Մկրտչյանի կողմից"
 
 # Title and Subtitle
 st.markdown(f"<h1 style='text-align: center;'>{title}</h1>", unsafe_allow_html=True)
@@ -111,24 +117,17 @@ if st.button(predict_button):
             "</p>",
             unsafe_allow_html=True
         )
+
         if reasons:
             styled_text = f"""
-            <div style="text-align: center; font-size: 24px; font-weight: bold; color: red;
-                        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);">
+            <div style="text-align: center; font-size: 22px; font-weight: bold; color: red;">
                 {issue_text}
             </div>
             """
             st.markdown(styled_text, unsafe_allow_html=True)
-        
-            reason_list = "".join([
-                f"<li style='font-size: 22px; color: white; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);'>{reason}</li>" 
-                for reason in reasons
-            ])
+
+            reason_list = "".join([f"<li style='font-size: 20px; color: white;'>{reason}</li>" for reason in reasons])
             reason_html = f"<ul style='text-align: center; list-style-position: inside;'>{reason_list}</ul>"
-            
+
             st.markdown(reason_html, unsafe_allow_html=True)
-# Footer
-st.markdown("---")
-st.markdown(about_title)
-st.markdown(about_text)
-st.markdown(footer_text)
+
