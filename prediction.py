@@ -117,7 +117,7 @@ if st.button(predict_button):
                    reasons.append(f"Լուծված պինդ նյութերը դուրս են սահմաններից ({min_val}-{max_val})")
                elif label == "Chloramines":
                    reasons.append(f"Քլորամինները դուրս են սահմաններից ({min_val}-{max_val})")
-               elif label == "Sulfate":\
+               elif label == "Sulfate":
                    reasons.append(f"Սուլֆատները դուրս են սահմաններից ({min_val}-{max_val})")
                elif label == "Conductivity":
                    reasons.append(f"Էլեկտրահաղորդականությունը դուրս է սահմաններից ({min_val}-{max_val})")
