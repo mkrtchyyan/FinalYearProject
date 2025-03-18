@@ -139,17 +139,17 @@ st.markdown(f"<h3 style='text-align: center; font-size: 1.5em;'>{subtitle}</h3>"
 col1, col2 = st.columns(2)
 
 with col1:
-    ph = st.number_input(input_labels[0], value=7.0, step=0.1, format="%.2f", key="ph")
-    hardness = st.number_input(input_labels[1], value=150.0, step=1.0, format="%.2f", key="hardness")
-    solids = st.number_input(input_labels[2], value=300.0, step=1.0, format="%.2f", key="solids")
-    chloramines = st.number_input(input_labels[3], value=2.0, step=0.1, format="%.2f", key="chloramines")
-    sulfate = st.number_input(input_labels[4], value=200.0, step=1.0, format="%.2f", key="sulfate")
+    ph = st.number_input(input_labels[0], value=0.0, step=0.1, format="%.2f", key="ph")
+    hardness = st.number_input(input_labels[1], value=0.0, step=1.0, format="%.2f", key="hardness")
+    solids = st.number_input(input_labels[2], value=0.0, step=1.0, format="%.2f", key="solids")
+    chloramines = st.number_input(input_labels[3], value=0.0, step=0.1, format="%.2f", key="chloramines")
+    sulfate = st.number_input(input_labels[4], value=0.0, step=1.0, format="%.2f", key="sulfate")
 
 with col2:
-    conductivity = st.number_input(input_labels[5], value=500.0, step=1.0, format="%.2f", key="conductivity")
-    organicCarbon = st.number_input(input_labels[6], value=3.0, step=0.1, format="%.2f", key="organicCarbon")
-    trihalomethanes = st.number_input(input_labels[7], value=50.0, step=1.0, format="%.2f", key="trihalomethanes")
-    turbidity = st.number_input(input_labels[8], value=2.0, step=0.1, format="%.2f", key="turbidity")
+    conductivity = st.number_input(input_labels[5], value=0.0, step=1.0, format="%.2f", key="conductivity")
+    organicCarbon = st.number_input(input_labels[6], value=0.0, step=0.1, format="%.2f", key="organicCarbon")
+    trihalomethanes = st.number_input(input_labels[7], value=00.0, step=1.0, format="%.2f", key="trihalomethanes")
+    turbidity = st.number_input(input_labels[8], value=0.0, step=0.1, format="%.2f", key="turbidity")
 
 # Predict button with a sleek design
 if st.button(predict_button):
