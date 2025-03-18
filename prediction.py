@@ -89,7 +89,7 @@ if st.button(predict_button):
 
     # Make prediction
     prediction = model.predict([input_values])[0]
-   # prediction_text = safe_text if prediction == 1 else unsafe_text
+    prediction_text = safe_text if prediction == 1 else unsafe_text
 
     # Display result
     if prediction == 1:
