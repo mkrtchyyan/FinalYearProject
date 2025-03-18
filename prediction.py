@@ -51,12 +51,12 @@ def set_background(image_file):
 set_background("futuristic-science-lab-background_23-2148505015.jpg")  # Replace with your image file path
 
 # Load the model
-#try:
-#    model = joblib.load("svm.pkl")
-#    st.success("Model loaded successfully!")
-#except Exception as e:
-#    st.error(f"Error loading the model: {e}")
-#    st.stop()
+try:
+    model = joblib.load("svm.pkl")
+    #st.success("Model loaded successfully!")
+except Exception as e:
+    st.error(f"Error loading the model: {e}")
+    st.stop()
 
 # Define safe thresholds for each parameter (updated based on Kaggle info)
 safe_thresholds = {
