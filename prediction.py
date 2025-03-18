@@ -53,7 +53,7 @@ if language == "English":
     footer_text = "##### Made by Manan Mkrtchyan"
 else:
     title = "💧 Ջրի Որակի Կանխատեսում"
-    subtitle = "Ստուգեք՝ ջուրը խմելու համար անվտանգ է թե ոչ։"
+    subtitle = "Ստուգեք՝ ջուրը խմելու համար անվտանգ է, թե ոչ։"
     input_labels = ["pH մակարդակ/թթվայնություն", "Կարծրություն", "Լուծված պինդ նյութեր", "Քլորամիններ", "Սուլֆատներ",
                     "էլեկտրահաղորդականություն", "Օրգանական ածխածին", "Տրիալոմեթաններ", "պղտորություն"]
     predict_button = "Կանխատեսել Ջրի Որակը"
@@ -99,7 +99,7 @@ if st.button(predict_button):
 
     # Add animation or GIF
     if prediction == 1:
-        st.image("21111safewater.gif", width=500)
+       # st.image("21111safewater.gif", width=500)
         st.markdown(
             f"<p style='font-size: 20px; font-weight: bold; text-align: center;'>"
             f"<span style='background-color: rgba(0, 0, 0, 0.5); padding: 5px; border-radius: 3px;'>{safe_text}</span>"
@@ -107,7 +107,7 @@ if st.button(predict_button):
             unsafe_allow_html=True
         )
     else:
-        st.image("unsafe2.gif", width=500)
+        #st.image("unsafe2.gif", width=500)
         st.markdown(
             f"<p style='font-size: 20px; font-weight: bold; text-align: center;'>"
             f"<span style='background-color: rgba(0, 0, 0, 0.5); padding: 5px; border-radius: 3px;'>{unsafe_text}</span>"
