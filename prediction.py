@@ -34,7 +34,7 @@ def set_background(image_file):
 
 
 # Set background image
-set_background("chemicals2.jpg")
+set_background("water.webp")
 
 # Language Selection
 language = st.radio("🌍 Select Language / Ընտրեք Լեզուն", ("English", "Հայերեն"))
