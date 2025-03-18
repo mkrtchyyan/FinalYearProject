@@ -95,8 +95,23 @@ if st.button(predict_button):
     # Display result
     if prediction == 1:
         st.success(safe_text)
+        st.image("21111safewater.gif", width=500)
+        st.markdown(
+            f"<p style='font-size: 20px; font-weight: bold; text-align: center;'>"
+            f"<span style='background-color: rgba(0, 0, 0, 0.5); padding: 5px; border-radius: 3px;'>{safe_text}</span>"
+            "</p>",
+            unsafe_allow_html=True
+        )
     else:
         st.error(unsafe_text)
+        st.image("unsafe2.gif", width=500)
+        st.markdown(
+            f"<p style='font-size: 20px; font-weight: bold; text-align: center;'>"
+            f"<span style='background-color: rgba(0, 0, 0, 0.5); padding: 5px; border-radius: 3px;'>{unsafe_text}</span>"
+            "</p>",
+            unsafe_allow_html=True
+        )
+
         if reasons:
             st.markdown(f"**{issue_text}**")
             for reason in reasons:
