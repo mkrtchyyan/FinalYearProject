@@ -34,7 +34,7 @@ def set_background(image_file):
     st.markdown(bg_css, unsafe_allow_html=True)
 
 # Set background image
-set_background("wfuturistic-science-lab-background_23-2148505015.jpg")
+set_background("futuristic-science-lab-background_23-2148505015.jpg")
 
 # Language Selection
 language = st.radio("🌍 Select Language / Ընտրեք Լեզուն", ("English", "Հայերեն"))
