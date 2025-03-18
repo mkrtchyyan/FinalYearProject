@@ -34,7 +34,7 @@ def set_background(image_file):
     st.markdown(bg_css, unsafe_allow_html=True)
 
 # Set background image
-set_background("vedrana-filipovic-ohrhLVISJ1o-unsplash.jpg")
+set_background("water-839590_1280.jpg")
 
 # Language Selection
 language = st.radio("🌍 Select Language / Ընտրեք Լեզուն", ("English", "Հայերեն"))
