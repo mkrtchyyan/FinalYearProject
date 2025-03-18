@@ -131,3 +131,8 @@ if st.button(predict_button):
 
             st.markdown(reason_html, unsafe_allow_html=True)
 
+# Footer
+st.markdown("---")
+st.markdown(about_title)
+st.markdown(about_text)
+st.markdown(footer_text)
