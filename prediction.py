@@ -116,8 +116,8 @@ if language == "English":
     predict_button = "Predict Water Quality"
     safe_text = "✅ Safe to drink!"
     unsafe_text = "❌ Unsafe! Do not drink!"
-    about_title = "### About US"
-    about_text = "##### This website predicts water quality based on various parameters. Use the inputs to enter values and click 'Predict Water Quality' to see the result."
+    about_title = "## About us"
+    about_text = "### This website predicts water quality based on various parameters. Use the inputs to enter values and click 'Predict Water Quality' to see the result."
     footer_text = "###### Made by Manan Mkrtchyan"
 else:
     title = "💧 Ջրի Որակի Կանխատեսում"
