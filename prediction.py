@@ -111,21 +111,19 @@ if st.button(predict_button):
             "</p>",
             unsafe_allow_html=True
         )
-
         if reasons:
-    styled_text = f"""
-    <div style="text-align: center; font-size: 24px; font-weight: bold; color: red;
-                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);">
-        {issue_text}
-    </div>
-    """
-    st.markdown(styled_text, unsafe_allow_html=True)
-
-    reason_list = "".join([
-        f"<li style='font-size: 22px; color: white; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);'>{reason}</li>" 
-        for reason in reasons
-    ])
-    reason_html = f"<ul style='text-align: center; list-style-position: inside;'>{reason_list}</ul>"
-    
-    st.markdown(reason_html, unsafe_allow_html=True)
-
+            styled_text = f"""
+            <div style="text-align: center; font-size: 24px; font-weight: bold; color: red;
+                        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7);">
+                {issue_text}
+            </div>
+            """
+            st.markdown(styled_text, unsafe_allow_html=True)
+        
+            reason_list = "".join([
+                f"<li style='font-size: 22px; color: white; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);'>{reason}</li>" 
+                for reason in reasons
+            ])
+            reason_html = f"<ul style='text-align: center; list-style-position: inside;'>{reason_list}</ul>"
+            
+            st.markdown(reason_html, unsafe_allow_html=True)
