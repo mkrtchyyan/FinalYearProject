@@ -113,6 +113,15 @@ if st.button(predict_button):
         )
 
         if reasons:
-            st.markdown(f"**{issue_text}**")
-            for reason in reasons:
-                st.markdown(f"- {reason}")
+            styled_text = f"""
+            <div style="text-align: center; font-size: 22px; font-weight: bold; color: red;">
+                {issue_text}
+            </div>
+            """
+            st.markdown(styled_text, unsafe_allow_html=True)
+
+            reason_list = "".join([f"<li style='font-size: 20px; color: white;'>{reason}</li>" for reason in reasons])
+            reason_html = f"<ul style='text-align: center; list-style-position: inside;'>{reason_list}</ul>"
+
+            st.markdown(reason_html, unsafe_allow_html=True)
+
