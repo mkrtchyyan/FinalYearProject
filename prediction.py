@@ -34,7 +34,7 @@ def set_background(image_file):
 
 
 # Set background image
-set_background("vedrana-filipovic-ohrhLVISJ1o-unsplash.jpg")
+set_background("chemicals2.jpg")
 
 # Language Selection
 language = st.radio("🌍 Select Language / Ընտրեք Լեզուն", ("English", "Հայերեն"))
