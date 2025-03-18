@@ -116,8 +116,8 @@ if language == "English":
     predict_button = "Predict Water Quality"
     safe_text = "✅ Safe to drink!"
     unsafe_text = "❌ Unsafe! Do not drink!"
-    about_title = "### About This App"
-    about_text = "##### This app predicts water quality based on various parameters. Use the inputs to enter values and click 'Predict Water Quality' to see the result."
+    about_title = "### About US"
+    about_text = "##### This website predicts water quality based on various parameters. Use the inputs to enter values and click 'Predict Water Quality' to see the result."
     footer_text = "##### Made by Manan Mkrtchyan"
 else:
     title = "💧 Ջրի Որակի Կանխատեսում"
@@ -127,9 +127,9 @@ else:
     predict_button = "Կանխատեսել Ջրի Որակը"
     safe_text = "✅ Անվտանգ է խմելու համար!"
     unsafe_text = "❌ Վտանգավոր է! Մի խմեք!"
-    about_title = "### Այս Հավելվածի Մասին"
-    about_text = "#### Այս հավելվածը կանխատեսում է ջրի որակը՝ հիմնվելով տարբեր պարամետրերի վրա։ Մուտքագրեք տվյալները և սեղմեք «Կանխատեսել Ջրի Որակը»՝ արդյունքը տեսնելու համար։"
-    footer_text = "#### Ստեղծվել է Մանան Մկրտչյանի կողմից"
+    about_title = "#### Մեր Մասին"
+    about_text = "##### Այս հավելվածը կանխատեսում է ջրի որակը՝ հիմնվելով տարբեր պարամետրերի վրա։ Մուտքագրեք տվյալները և սեղմեք «Կանխատեսել Ջրի Որակը»՝ արդյունքը տեսնելու համար։"
+    footer_text = "##### Ստեղծվել է Մանան Մկրտչյանի կողմից"
 
 # Title and Subtitle
 st.markdown(f"<h1 style='text-align: center; font-size: 2.5em;'>{title}</h1>", unsafe_allow_html=True)
