@@ -102,7 +102,7 @@ if st.button(predict_button):
     reasons = []
 
     # Check which parameters are unsafe
-   for i, label in enumerate(input_labels):
+    for i, label in enumerate(input_labels):
        min_val, max_val = safe_ranges[label]
        if not (min_val <= input_values[i] <= max_val):
            if language == "English":
