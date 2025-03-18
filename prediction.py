@@ -102,10 +102,31 @@ if st.button(predict_button):
     reasons = []
 
     # Check which parameters are unsafe
-    for i, label in enumerate(input_labels):
-        min_val, max_val = safe_ranges[label]
-        if not (min_val <= input_values[i] <= max_val):
+   for i, label in enumerate(input_labels):
+    min_val, max_val = safe_ranges[label]
+    if not (min_val <= input_values[i] <= max_val):
+        if language == "English":
             reasons.append(f"{label} is out of range ({min_val}-{max_val})")
+        else:
+            # Armenian translation for out of range messages
+            if label == "pH Level":
+                reasons.append(f"pH մակարդակը դուրս է սահմաններից ({min_val}-{max_val})")
+            elif label == "Hardness":
+                reasons.append(f"Կարծրությունը դուրս է սահմաններից ({min_val}-{max_val})")
+            elif label == "Solids":
+                reasons.append(f"Լուծված պինդ նյութերը դուրս են սահմաններից ({min_val}-{max_val})")
+            elif label == "Chloramines":
+                reasons.append(f"Քլորամինները դուրս են սահմաններից ({min_val}-{max_val})")
+            elif label == "Sulfate":
+                reasons.append(f"Սուլֆատները դուրս են սահմաններից ({min_val}-{max_val})")
+            elif label == "Conductivity":
+                reasons.append(f"Էլեկտրահաղորդականությունը դուրս է սահմաններից ({min_val}-{max_val})")
+            elif label == "Organic Carbon":
+                reasons.append(f"Օրգանական ածխածինը դուրս է սահմաններից ({min_val}-{max_val})")
+            elif label == "Trihalomethanes":
+                reasons.append(f"Տրիալոմեթանները դուրս են սահմաններից ({min_val}-{max_val})")
+            elif label == "Turbidity":
+                reasons.append(f"Պղտորությունը դուրս է սահմաններից ({min_val}-{max_val})")
 
     # Display result
     if prediction == 1:
