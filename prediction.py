@@ -74,7 +74,7 @@ input_values = []
 for label in input_labels:
     input_values.append(st.number_input(label, value=0.0))
 
-# Define safe ranges
+# Define safe ranges (use keys matching exactly with the input labels)
 safe_ranges = {
     "pH Level": (6.5, 8.5),
     "Hardness": (0, 500),
@@ -84,7 +84,16 @@ safe_ranges = {
     "Conductivity": (0, 500),
     "Organic Carbon": (0, 5),
     "Trihalomethanes": (0, 80),
-    "Turbidity": (0, 5)
+    "Turbidity": (0, 5),
+    "pH մակարդակ": (6.5, 8.5),
+    "Կարծրություն": (0, 500),
+    "Լուծված պինդ նյութեր": (0, 1000),
+    "Քլորամիններ": (0, 4),
+    "Սուլֆատներ": (0, 250),
+    "Էլեկտրահաղորդականություն": (0, 500),
+    "Օրգանական ածխածին": (0, 5),
+    "Տրիալոմեթաններ": (0, 80),
+    "Պղտորություն": (0, 5)
 }
 
 # Predict button
