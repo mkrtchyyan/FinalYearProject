@@ -127,3 +127,8 @@ if st.button(predict_button):
             reason_html = f"<ul style='text-align: center; list-style-position: inside;'>{reason_list}</ul>"
             
             st.markdown(reason_html, unsafe_allow_html=True)
+# Footer
+st.markdown("---")
+st.markdown(about_title)
+st.markdown(about_text)
+st.markdown(footer_text)
