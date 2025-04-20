@@ -156,8 +156,8 @@ if st.button(predict_button):
     input_values = [ph, hardness, solids, chloramines, sulfate, conductivity, organicCarbon, trihalomethanes, turbidity]
     try:
         # Scale the input values (if required by the model)
-        scaler = StandardScaler()
-        input_values_scaled = scaler.fit_transform([input_values])
+        scaler = joblib.load("scaler.pkl")
+        input_values_scaled = scaler.transform([input_values])
 
         # Make prediction
         prediction = model.predict(input_values_scaled)[0]
