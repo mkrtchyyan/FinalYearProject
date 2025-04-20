@@ -8,6 +8,7 @@ import base64
 # Set page configuration
 st.set_page_config(page_title="Water Quality Prediction", page_icon="💧", layout="wide")
 
+
 # Background image
 def set_background(image_file):
     with open(image_file, "rb") as f:
@@ -45,6 +46,7 @@ def set_background(image_file):
     """
     st.markdown(bg_css, unsafe_allow_html=True)
 
+
 set_background("futuristic-science-lab-background_23-2148505015.jpg")
 
 # Load model and scaler
@@ -80,6 +82,7 @@ armenian_to_english = {
     "Պղտորություն": "Turbidity"
 }
 
+
 def check_unsafe_parameters(input_values, safe_thresholds, input_labels, language):
     unsafe_parameters = []
     for i, (param, value) in enumerate(zip(input_labels, input_values)):
@@ -94,7 +97,8 @@ def check_unsafe_parameters(input_values, safe_thresholds, input_labels, languag
                 unsafe_parameters.append(reason)
     return unsafe_parameters
 
-# Language
+
+# Language selection
 language = st.radio("🌍 Select Language / Ընտրեք Լեզուն", ("English", "Հայերեն"))
 
 # Localized UI content
@@ -106,10 +110,19 @@ if language == "English":
     predict_button = "Predict Water Quality"
     safe_text = "✅ Safe to drink!"
     unsafe_text = "❌ Unsafe! Do not drink!"
-    upload_label = "📁 Or Upload CSV File"
-    download_label = "📥 Download Results as CSV"
-    column_warning = "CSV must contain exactly 9 columns."
-    success_label = "✅ Prediction Completed:"
+    upload_label = "📁 Upload CSV File"
+    upload_help = "Upload a CSV file with 9 columns of water quality parameters"
+    download_label = "📥 Download Results"
+    column_warning = "Error: CSV must contain exactly 9 numeric columns"
+    numeric_warning = "Error: All values must be numbers"
+    success_label = "✅ Prediction completed!"
+    file_error = "File processing error. Please check:"
+    file_requirements = [
+        "- Exactly 9 columns",
+        "- Numeric values only",
+        "- UTF-8 or Latin-1 encoding",
+        "- No header row or matching column names"
+    ]
 else:
     title = "💧 Ջրի Որակի Կանխատեսում"
     subtitle = "Ստուգեք՝ ջուրը խմելու համար անվտանգ է, թե ոչ։"
@@ -118,10 +131,19 @@ else:
     predict_button = "Կանխատեսել Ջրի Որակը"
     safe_text = "✅ Անվտանգ է խմելու համար!"
     unsafe_text = "❌ Վտանգավոր է! Մի խմեք!"
-    upload_label = "📁 Կամ վերբեռնեք CSV ֆայլ"
-    download_label = "📥 Ներբեռնել արդյունքները CSV ֆորմատով"
-    column_warning = "CSV ֆայլը պետք է ունենա ճիշտ 9 սյունակ։"
-    success_label = "✅ Կանխատեսումը ավարտված է։"
+    upload_label = "📁 CSV Ֆայլ Վերբեռնել"
+    upload_help = "Վերբեռնեք ջրի որակի 9 պարամետրեր պարունակող CSV ֆայլ"
+    download_label = "📥 Արդյունքները Ներբեռնել"
+    column_warning = "Սխալ․ CSV ֆայլը պետք է պարունակի ճիշտ 9 թվային սյունակ"
+    numeric_warning = "Սխալ․ Բոլոր արժեքները պետք է լինեն թվեր"
+    success_label = "✅ Կանխատեսումը հաջողված է!"
+    file_error = "Ֆայլի մշակման սխալ։ Ստուգեք՝"
+    file_requirements = [
+        "- Ճիշտ 9 սյունակ",
+        "- Միայն թվային արժեքներ",
+        "- UTF-8 կամ Latin-1 կոդավորում",
+        "- Առանց վերնագրի տողի կամ համապատասխան սյունակների անունների"
+    ]
 
 # Title and Subtitle
 st.markdown(f"<h1 style='text-align: center; font-size: 2.5em;'>{title}</h1>", unsafe_allow_html=True)
@@ -159,21 +181,48 @@ if st.button(predict_button):
 
 # CSV Upload Section
 st.markdown(f"### {upload_label}")
-uploaded_file = st.file_uploader("", type=["csv"])
+uploaded_file = st.file_uploader(upload_help, type=["csv"])
 
 if uploaded_file is not None:
     try:
-        df = pd.read_csv(uploaded_file)
+        # Try multiple encodings
+        try:
+            df = pd.read_csv(uploaded_file)
+        except UnicodeDecodeError:
+            uploaded_file.seek(0)  # Reset file pointer
+            df = pd.read_csv(uploaded_file, encoding='latin1')
+
+        # Validate shape
         if df.shape[1] != 9:
             st.error(column_warning)
-        else:
-            st.dataframe(df)
-            scaled_data = scaler.transform(df)
-            preds = model.predict(scaled_data)
-            df['Prediction'] = ['✅ Safe' if p == 1 else '❌ Unsafe' for p in preds]
-            st.success(success_label)
-            st.dataframe(df)
-            csv_output = df.to_csv(index=False).encode('utf-8')
-            st.download_button(label=download_label, data=csv_output, file_name="results.csv", mime='text/csv')
+            st.stop()
+
+        # Validate numeric data
+        if not all([pd.api.types.is_numeric_dtype(df[col]) for col in df.columns]):
+            st.error(numeric_warning)
+            st.stop()
+
+        # Process data
+        st.dataframe(df)
+        scaled_data = scaler.transform(df)
+        preds = model.predict(scaled_data)
+        df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in
+                            preds]
+
+        st.success(success_label)
+        st.dataframe(df)
+
+        # Prepare download
+        csv_output = df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label=download_label,
+            data=csv_output,
+            file_name="water_quality_results.csv",
+            mime='text/csv'
+        )
+
     except Exception as e:
-        st.error(f"File processing error: {e}")
+        st.error(file_error)
+        for req in file_requirements:
+            st.error(req)
+        st.error(f"Technical details: {str(e)}")
