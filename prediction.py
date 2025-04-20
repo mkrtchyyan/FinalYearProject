@@ -180,51 +180,39 @@ if st.button(predict_button):
         st.error(f"Prediction error: {e}")
 
 # CSV Upload Section
-# CSV Upload Section
 st.markdown(f"### {upload_label}")
 uploaded_file = st.file_uploader(upload_help, type=["csv"])
 
 if uploaded_file is not None:
     try:
-        # Try reading with header first
+        # Try multiple encodings
         try:
             df = pd.read_csv(uploaded_file)
         except UnicodeDecodeError:
-            uploaded_file.seek(0)
+            uploaded_file.seek(0)  # Reset file pointer
             df = pd.read_csv(uploaded_file, encoding='latin1')
 
-        # Check for required columns
-        required_cols = ['ph', 'Hardness', 'Solids', 'Chloramines',
-                         'Sulfate', 'Conductivity', 'Organic_carbon',
-                         'Trihalomethanes', 'Turbidity']
-
-        if not all(col in df.columns for col in required_cols):
-            missing = [col for col in required_cols if col not in df.columns]
-            st.error(f"Missing columns: {', '.join(missing)}" if language == "English"
-                     else f"Բացակայող սյունակներ: {', '.join(missing)}")
+        # Validate shape
+        if df.shape[1] != 9:
+            st.error(column_warning)
             st.stop()
-
-        # Select only required columns in correct order
-        df = df[required_cols]
 
         # Validate numeric data
         if not all([pd.api.types.is_numeric_dtype(df[col]) for col in df.columns]):
             st.error(numeric_warning)
             st.stop()
 
-        # Show uploaded data
-        st.write("Uploaded Data:" if language == "English" else "Վերբեռնված տվյալները:")
-        st.dataframe(df)
-
         # Process data
+        st.dataframe(df)
         scaled_data = scaler.transform(df)
         preds = model.predict(scaled_data)
-        df['Prediction'] = ['✅ Safe' if p == 1 else '❌ Unsafe' for p in preds]
+        df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in
+                            preds]
 
         st.success(success_label)
         st.dataframe(df)
 
-        # Download results
+        # Prepare download
         csv_output = df.to_csv(index=False).encode('utf-8')
         st.download_button(
             label=download_label,
@@ -234,7 +222,7 @@ if uploaded_file is not None:
         )
 
     except Exception as e:
-        st.error(f"{file_error}: {str(e)}")
-        st.error("Required format:" if language == "English" else "Պահանջվող ձևաչափը:")
-        st.code("""ph,Hardness,Solids,Chloramines,Sulfate,Conductivity,Organic_carbon,Trihalomethanes,Turbidity
-7.1,195,350,2.5,220,380,3.2,75,3.8""")
+        st.error(file_error)
+        for req in file_requirements:
+            st.error(req)
+        st.error(f"Technical details: {str(e)}")
