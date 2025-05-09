@@ -189,30 +189,36 @@ if uploaded_file is not None:
         try:
             df = pd.read_csv(uploaded_file)
         except UnicodeDecodeError:
-            uploaded_file.seek(0)  # Reset file pointer
+            uploaded_file.seek(0)
             df = pd.read_csv(uploaded_file, encoding='latin1')
 
-        # Validate shape
         if df.shape[1] != 9:
             st.error(column_warning)
             st.stop()
 
-        # Validate numeric data
         if not all([pd.api.types.is_numeric_dtype(df[col]) for col in df.columns]):
             st.error(numeric_warning)
             st.stop()
 
-        # Process data
         st.dataframe(df)
         scaled_data = scaler.transform(df)
         preds = model.predict(scaled_data)
-        df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in
-                            preds]
+        df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in preds]
+
+        # 🔽 New: Add unsafe reasons column
+        reason_col_name = "Reasons" if language == "English" else "Պատճառները"
+        reasons_list = []
+        for i, row in df.iterrows():
+            if preds[i] == 0:
+                reasons = check_unsafe_parameters(row[:9].values, safe_thresholds, list(df.columns), language)
+                reasons_list.append("; ".join(reasons))
+            else:
+                reasons_list.append("")
+        df[reason_col_name] = reasons_list
 
         st.success(success_label)
-        st.dataframe(df)
+        st.dataframe(df.style.format(precision=2))
 
-        # Prepare download
         csv_output = df.to_csv(index=False).encode('utf-8')
         st.download_button(
             label=download_label,
