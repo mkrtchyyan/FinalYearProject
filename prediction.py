@@ -98,7 +98,7 @@ armenian_to_english = {
 english_to_armenian = {v: k for k, v in armenian_to_english.items()}
 
 
-# Unsafe reason checker with improved Armenian display
+# Unsafe reason checker with proper Armenian parameter names
 def check_unsafe_parameters(input_values, safe_thresholds, input_labels, language):
     unsafe_parameters = []
     for i, (param, value) in enumerate(zip(input_labels, input_values)):
@@ -107,10 +107,12 @@ def check_unsafe_parameters(input_values, safe_thresholds, input_labels, languag
         if param_key in safe_thresholds:
             thresholds = safe_thresholds[param_key]
             if "min" in thresholds and value < thresholds["min"]:
-                reason = f"{label} շատ ցածր է (նվազագույն՝ {thresholds['min']}, ձեր արժեքը՝ {value:.2f})" if language == "Հայերեն" else f"{label} is too low (min: {thresholds['min']}, your value: {value:.2f})"
+                param_name = english_to_armenian.get(param_key, param_key) if language == "Հայերեն" else param_key
+                reason = f"{param_name} շատ ցածր է (նվազագույն՝ {thresholds['min']}, ձեր արժեքը՝ {value:.2f})" if language == "Հայերեն" else f"{param_name} is too low (min: {thresholds['min']}, your value: {value:.2f})"
                 unsafe_parameters.append(reason)
             if "max" in thresholds and value > thresholds["max"]:
-                reason = f"{label} շատ բարձր է (առավելագույն՝ {thresholds['max']}, ձեր արժեքը՝ {value:.2f})" if language == "Հայերեն" else f"{label} is too high (max: {thresholds['max']}, your value: {value:.2f})"
+                param_name = english_to_armenian.get(param_key, param_key) if language == "Հայերեն" else param_key
+                reason = f"{param_name} շատ բարձր է (առավելագույն՝ {thresholds['max']}, ձեր արժեքը՝ {value:.2f})" if language == "Հայերեն" else f"{param_name} is too high (max: {thresholds['max']}, your value: {value:.2f})"
                 unsafe_parameters.append(reason)
     return unsafe_parameters
 
@@ -132,7 +134,6 @@ if language == "English":
     download_label = "📥 Download Results"
     column_warning = "Error: CSV must contain exactly 9 numeric columns"
     numeric_warning = "Error: All values must be numbers"
-    success_label = "✅ Prediction completed!"
     file_error = "File processing error. Please check:"
     file_requirements = [
         "- Exactly 9 columns",
@@ -140,6 +141,7 @@ if language == "English":
         "- UTF-8 or Latin-1 encoding",
         "- No header row or matching column names"
     ]
+    potability_col_name = "Potability"
 else:
     title = "💧 Ջրի Որակի Կանխատեսում"
     subtitle = "Ստուգեք՝ ջուրը խմելու համար անվտանգ է, թե ոչ։"
@@ -153,7 +155,6 @@ else:
     download_label = "📥 Արդյունքները Ներբեռնել"
     column_warning = "Սխալ․ CSV ֆայլը պետք է պարունակի ճիշտ 9 թվային սյունակ"
     numeric_warning = "Սխալ․ Բոլոր արժեքները պետք է լինեն թվեր"
-    success_label = "✅ Կանխատեսումը հաջողված է!"
     file_error = "Ֆայլի մշակման սխալ։ Ստուգեք՝"
     file_requirements = [
         "- Ճիշտ 9 սյունակ",
@@ -161,6 +162,7 @@ else:
         "- UTF-8 կամ Latin-1 կոդավորում",
         "- Առանց վերնագրի տողի կամ համապատասխան սյունակների անունների"
     ]
+    potability_col_name = "Պիտանիություն"
 
 # Title and Subtitle
 st.markdown(f"<h1 style='text-align: center; font-size: 2.5em;'>{title}</h1>", unsafe_allow_html=True)
@@ -235,11 +237,7 @@ if uploaded_file is not None:
         scaled_data = scaler.transform(df)
         preds = model.predict(scaled_data)
 
-        # Potability values for saving
-        potability_column = preds.tolist()
-
         # Show results row by row with Armenian display
-        st.success(success_label)
         for i, row in df.iterrows():
             # Display parameters with black background
             with st.container():
@@ -257,9 +255,9 @@ if uploaded_file is not None:
                         st.markdown(f'<div class="unsafe-reason">- {reason}</div>', unsafe_allow_html=True)
                 st.markdown("---")
 
-        # Final DataFrame for download with proper Armenian encoding
+        # Final DataFrame for download with proper encoding
         download_df = df.copy()
-        download_df["Potability"] = [safe_text if x == 1 else unsafe_text for x in preds]
+        download_df[potability_col_name] = preds  # 0 or 1 values
 
         # Convert back to Armenian column names if needed
         if language == "Հայերեն":
@@ -272,10 +270,10 @@ if uploaded_file is not None:
                 "Conductivity": "Էլեկտրահաղորդականություն",
                 "Organic Carbon": "Օրգանական ածխածին",
                 "Trihalomethanes": "Տրիալոմեթաններ",
-                "Turbidity": "Պղտորություն",
-                "Potability": "Պիտանիություն"
+                "Turbidity": "Պղտորություն"
             }
-            download_df.columns = [reverse_column_map.get(col, col) for col in download_df.columns]
+            download_df.columns = [reverse_column_map.get(col, col) for col in download_df.columns[:-1]] + [
+                potability_col_name]
 
         # Ensure proper encoding for Armenian characters in CSV
         csv_output = download_df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
