@@ -132,6 +132,7 @@ if language == "English":
     upload_label = "📁 Upload CSV File"
     upload_help = "Upload a CSV file with 9 columns of water quality parameters"
     download_label = "📥 Download Results"
+    manual_download_label = "📥 Download Manual Results"
     column_warning = "Error: CSV must contain exactly 9 numeric columns"
     numeric_warning = "Error: All values must be numbers"
     file_error = "File processing error. Please check:"
@@ -153,6 +154,7 @@ else:
     upload_label = "📁 CSV Ֆայլ Վերբեռնել"
     upload_help = "Վերբեռնեք ջրի որակի 9 պարամետրեր պարունակող CSV ֆայլ"
     download_label = "📥 Արդյունքները Ներբեռնել"
+    manual_download_label = "📥 Ներբեռնել Ձեռքով Մուտքագրված Արդյունքները"
     column_warning = "Սխալ․ CSV ֆայլը պետք է պարունակի ճիշտ 9 թվային սյունակ"
     numeric_warning = "Սխալ․ Բոլոր արժեքները պետք է լինեն թվեր"
     file_error = "Ֆայլի մշակման սխալ։ Ստուգեք՝"
@@ -189,12 +191,19 @@ with col2:
         turbidity = st.number_input(input_labels[8], value=0.0, step=0.1, format="%.2f")
         st.markdown('</div>', unsafe_allow_html=True)
 
+manual_results = None
+
 if st.button(predict_button):
     input_values = [ph, hardness, solids, chloramines, sulfate,
                     conductivity, organicCarbon, trihalomethanes, turbidity]
     try:
         input_values_scaled = scaler.transform([input_values])
         prediction = model.predict(input_values_scaled)[0]
+
+        # Create a DataFrame for the manual input results
+        manual_results = pd.DataFrame([input_values], columns=input_labels)
+        manual_results[potability_col_name] = [prediction]
+
         if prediction == 1:
             st.success(safe_text)
         else:
@@ -202,8 +211,24 @@ if st.button(predict_button):
             reasons = check_unsafe_parameters(input_values, safe_thresholds, input_labels, language)
             for r in reasons:
                 st.markdown(f'<div class="unsafe-reason">- {r}</div>', unsafe_allow_html=True)
+
     except Exception as e:
         st.error(f"Prediction error: {e}")
+
+# Add download button for manual results if available
+if manual_results is not None:
+    # Convert to Armenian column names if needed
+    if language == "Հայերեն":
+        manual_results.columns = [english_to_armenian.get(col, col) for col in manual_results.columns[:-1]] + [
+            potability_col_name]
+
+    csv_output = manual_results.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
+    st.download_button(
+        label=manual_download_label,
+        data=csv_output,
+        file_name="manual_water_quality_results.csv",
+        mime='text/csv'
+    )
 
 # CSV Upload Section
 st.markdown(f"### {upload_label}")
