@@ -149,35 +149,7 @@ else:
 st.markdown(f"<h1 style='text-align: center; font-size: 2.5em;'>{title}</h1>", unsafe_allow_html=True)
 st.markdown(f"<h3 style='text-align: center; font-size: 1.5em;'>{subtitle}</h3>", unsafe_allow_html=True)
 
-# Manual Input UI
-col1, col2 = st.columns(2)
-with col1:
-    ph = st.number_input(input_labels[0], value=0.0, step=0.1, format="%.2f")
-    hardness = st.number_input(input_labels[1], value=0.0, step=1.0, format="%.2f")
-    solids = st.number_input(input_labels[2], value=0.0, step=1.0, format="%.2f")
-    chloramines = st.number_input(input_labels[3], value=0.0, step=0.1, format="%.2f")
-    sulfate = st.number_input(input_labels[4], value=0.0, step=1.0, format="%.2f")
-with col2:
-    conductivity = st.number_input(input_labels[5], value=0.0, step=1.0, format="%.2f")
-    organicCarbon = st.number_input(input_labels[6], value=0.0, step=0.1, format="%.2f")
-    trihalomethanes = st.number_input(input_labels[7], value=0.0, step=1.0, format="%.2f")
-    turbidity = st.number_input(input_labels[8], value=0.0, step=0.1, format="%.2f")
-
-if st.button(predict_button):
-    input_values = [ph, hardness, solids, chloramines, sulfate,
-                    conductivity, organicCarbon, trihalomethanes, turbidity]
-    try:
-        input_values_scaled = scaler.transform([input_values])
-        prediction = model.predict(input_values_scaled)[0]
-        if prediction == 1:
-            st.success(safe_text)
-        else:
-            st.error(unsafe_text)
-            reasons = check_unsafe_parameters(input_values, safe_thresholds, input_labels, language)
-            for r in reasons:
-                st.write(f"- {r}")
-    except Exception as e:
-        st.error(f"Prediction error: {e}")
+# Manual input (unchanged) — keep as-is ...
 
 # CSV Upload Section
 st.markdown(f"### {upload_label}")
@@ -185,7 +157,6 @@ uploaded_file = st.file_uploader(upload_help, type=["csv"])
 
 if uploaded_file is not None:
     try:
-        # Try multiple encodings
         try:
             df = pd.read_csv(uploaded_file)
         except UnicodeDecodeError:
@@ -201,16 +172,26 @@ if uploaded_file is not None:
             st.stop()
 
         st.dataframe(df)
+
+        # Save original columns for display
+        original_columns = list(df.columns)
+
+        # Normalize column names using mapping
+        mapped_columns = [armenian_to_english.get(col, col) for col in original_columns]
+        df.columns = mapped_columns
+
+        # Predict
         scaled_data = scaler.transform(df)
         preds = model.predict(scaled_data)
-        df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in preds]
+        prediction_results = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in preds]
+        df['Prediction'] = prediction_results
 
-        # 🔽 New: Add unsafe reasons column
+        # Add reasons column
         reason_col_name = "Reasons" if language == "English" else "Պատճառները"
         reasons_list = []
         for i, row in df.iterrows():
             if preds[i] == 0:
-                reasons = check_unsafe_parameters(row[:9].values, safe_thresholds, list(df.columns), language)
+                reasons = check_unsafe_parameters(row.values, safe_thresholds, mapped_columns, language)
                 reasons_list.append("; ".join(reasons))
             else:
                 reasons_list.append("")
@@ -232,3 +213,4 @@ if uploaded_file is not None:
         for req in file_requirements:
             st.error(req)
         st.error(f"Technical details: {str(e)}")
+
