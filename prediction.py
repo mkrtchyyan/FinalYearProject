@@ -8,7 +8,8 @@ import base64
 # Set page configuration
 st.set_page_config(page_title="Water Quality Prediction", page_icon="💧", layout="wide")
 
-# Background image
+
+# Background image and custom CSS
 def set_background(image_file):
     with open(image_file, "rb") as f:
         encoded_string = base64.b64encode(f.read()).decode()
@@ -41,9 +42,22 @@ def set_background(image_file):
     .stButton button:hover {{
         background-color: #45a049;
     }}
+    .parameter-display {{
+        background-color: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }}
+    .unsafe-reason {{
+        background-color: rgba(139, 0, 0, 0.7);
+        padding: 8px;
+        border-radius: 6px;
+        margin: 5px 0;
+    }}
     </style>
     """
     st.markdown(bg_css, unsafe_allow_html=True)
+
 
 # Set background
 set_background("futuristic-science-lab-background_23-2148505015.jpg")
@@ -83,7 +97,8 @@ armenian_to_english = {
 
 english_to_armenian = {v: k for k, v in armenian_to_english.items()}
 
-# Unsafe reason checker
+
+# Unsafe reason checker with improved Armenian display
 def check_unsafe_parameters(input_values, safe_thresholds, input_labels, language):
     unsafe_parameters = []
     for i, (param, value) in enumerate(zip(input_labels, input_values)):
@@ -92,15 +107,16 @@ def check_unsafe_parameters(input_values, safe_thresholds, input_labels, languag
         if param_key in safe_thresholds:
             thresholds = safe_thresholds[param_key]
             if "min" in thresholds and value < thresholds["min"]:
-                reason = f"{label} շատ ցածր է (նվազագույն՝ {thresholds['min']}, ընթացիկ՝ {value})" if language == "Հայերեն" else f"{label} is too low (min: {thresholds['min']}, current: {value})"
+                reason = f"{label} շատ ցածր է (նվազագույն՝ {thresholds['min']}, ձեր արժեքը՝ {value:.2f})" if language == "Հայերեն" else f"{label} is too low (min: {thresholds['min']}, your value: {value:.2f})"
                 unsafe_parameters.append(reason)
             if "max" in thresholds and value > thresholds["max"]:
-                reason = f"{label} շատ բարձր է (առավելագույն՝ {thresholds['max']}, ընթացիկ՝ {value})" if language == "Հայերեն" else f"{label} is too high (max: {thresholds['max']}, current: {value})"
+                reason = f"{label} շատ բարձր է (առավելագույն՝ {thresholds['max']}, ձեր արժեքը՝ {value:.2f})" if language == "Հայերեն" else f"{label} is too high (max: {thresholds['max']}, your value: {value:.2f})"
                 unsafe_parameters.append(reason)
     return unsafe_parameters
 
+
 # Language selection
-language = st.radio("🌍 Select Language / Ընտրեք Լեզուն", ("English", "Հայերեն"))
+language = st.radio("🌍 Select Language / Ընտրեք Լեզուն", ("English", "Հայերեն"), horizontal=True)
 
 # Localized UI content
 if language == "English":
@@ -150,19 +166,26 @@ else:
 st.markdown(f"<h1 style='text-align: center; font-size: 2.5em;'>{title}</h1>", unsafe_allow_html=True)
 st.markdown(f"<h3 style='text-align: center; font-size: 1.5em;'>{subtitle}</h3>", unsafe_allow_html=True)
 
-# Manual Input UI
+# Manual Input UI with black background
 col1, col2 = st.columns(2)
 with col1:
-    ph = st.number_input(input_labels[0], value=0.0, step=0.1, format="%.2f")
-    hardness = st.number_input(input_labels[1], value=0.0, step=1.0, format="%.2f")
-    solids = st.number_input(input_labels[2], value=0.0, step=1.0, format="%.2f")
-    chloramines = st.number_input(input_labels[3], value=0.0, step=0.1, format="%.2f")
-    sulfate = st.number_input(input_labels[4], value=0.0, step=1.0, format="%.2f")
+    with st.container():
+        st.markdown('<div class="parameter-display">', unsafe_allow_html=True)
+        ph = st.number_input(input_labels[0], value=0.0, step=0.1, format="%.2f")
+        hardness = st.number_input(input_labels[1], value=0.0, step=1.0, format="%.2f")
+        solids = st.number_input(input_labels[2], value=0.0, step=1.0, format="%.2f")
+        chloramines = st.number_input(input_labels[3], value=0.0, step=0.1, format="%.2f")
+        sulfate = st.number_input(input_labels[4], value=0.0, step=1.0, format="%.2f")
+        st.markdown('</div>', unsafe_allow_html=True)
+
 with col2:
-    conductivity = st.number_input(input_labels[5], value=0.0, step=1.0, format="%.2f")
-    organicCarbon = st.number_input(input_labels[6], value=0.0, step=0.1, format="%.2f")
-    trihalomethanes = st.number_input(input_labels[7], value=0.0, step=1.0, format="%.2f")
-    turbidity = st.number_input(input_labels[8], value=0.0, step=0.1, format="%.2f")
+    with st.container():
+        st.markdown('<div class="parameter-display">', unsafe_allow_html=True)
+        conductivity = st.number_input(input_labels[5], value=0.0, step=1.0, format="%.2f")
+        organicCarbon = st.number_input(input_labels[6], value=0.0, step=0.1, format="%.2f")
+        trihalomethanes = st.number_input(input_labels[7], value=0.0, step=1.0, format="%.2f")
+        turbidity = st.number_input(input_labels[8], value=0.0, step=0.1, format="%.2f")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 if st.button(predict_button):
     input_values = [ph, hardness, solids, chloramines, sulfate,
@@ -176,7 +199,7 @@ if st.button(predict_button):
             st.error(unsafe_text)
             reasons = check_unsafe_parameters(input_values, safe_thresholds, input_labels, language)
             for r in reasons:
-                st.write(f"- {r}")
+                st.markdown(f'<div class="unsafe-reason">- {r}</div>', unsafe_allow_html=True)
     except Exception as e:
         st.error(f"Prediction error: {e}")
 
@@ -186,12 +209,12 @@ uploaded_file = st.file_uploader(upload_help, type=["csv"])
 
 if uploaded_file is not None:
     try:
-        # Attempt to read CSV
+        # Attempt to read CSV with explicit encoding
         try:
             df = pd.read_csv(uploaded_file)
         except UnicodeDecodeError:
             uploaded_file.seek(0)
-            df = pd.read_csv(uploaded_file, encoding='latin1')
+            df = pd.read_csv(uploaded_file, encoding='utf-8')
 
         # Validate shape
         if df.shape[1] != 9:
@@ -215,41 +238,47 @@ if uploaded_file is not None:
         # Potability values for saving
         potability_column = preds.tolist()
 
-        # Show results row by row
+        # Show results row by row with Armenian display
         st.success(success_label)
         for i, row in df.iterrows():
-            row_display = ", ".join([f"{original_columns[j]}: {row[mapped_columns[j]]}" for j in range(9)])
-            st.markdown(f"**{i+1}.** {row_display}")
-            if preds[i] == 1:
-                st.success(safe_text)
-            else:
-                st.error(unsafe_text)
-                reasons = check_unsafe_parameters(row.values, safe_thresholds, original_columns, language)
-                for reason in reasons:
-                    st.write(f"- {reason}")
-            st.markdown("---")
+            # Display parameters with black background
+            with st.container():
+                st.markdown('<div class="parameter-display">', unsafe_allow_html=True)
+                row_display = ", ".join([f"{original_columns[j]}: {row[mapped_columns[j]]:.2f}" for j in range(9)])
+                st.markdown(f"**{i + 1}.** {row_display}")
+                st.markdown('</div>', unsafe_allow_html=True)
 
-        # Final DataFrame for download
+                if preds[i] == 1:
+                    st.success(safe_text)
+                else:
+                    st.error(unsafe_text)
+                    reasons = check_unsafe_parameters(row.values, safe_thresholds, original_columns, language)
+                    for reason in reasons:
+                        st.markdown(f'<div class="unsafe-reason">- {reason}</div>', unsafe_allow_html=True)
+                st.markdown("---")
+
+        # Final DataFrame for download with proper Armenian encoding
         download_df = df.copy()
-        download_df["Potability"] = potability_column
+        download_df["Potability"] = [safe_text if x == 1 else unsafe_text for x in preds]
 
-        # Convert back original column names for CSV (e.g., Armenian)
-        reverse_column_map = {
-            "pH Level": "pH մակարդակ/թթվայնություն",
-            "Hardness": "Կարծրություն",
-            "Solids": "Լուծված պինդ նյութեր",
-            "Chloramines": "Քլորամիններ",
-            "Sulfate": "Սուլֆատներ",
-            "Conductivity": "Էլեկտրահաղորդականություն",
-            "Organic Carbon": "Օրգանական ածխածին",
-            "Trihalomethanes": "Տրիալոմեթաններ",
-            "Turbidity": "Պղտորություն"
-        }
+        # Convert back to Armenian column names if needed
+        if language == "Հայերեն":
+            reverse_column_map = {
+                "pH Level": "pH մակարդակ/թթվայնություն",
+                "Hardness": "Կարծրություն",
+                "Solids": "Լուծված պինդ նյութեր",
+                "Chloramines": "Քլորամիններ",
+                "Sulfate": "Սուլֆատներ",
+                "Conductivity": "Էլեկտրահաղորդականություն",
+                "Organic Carbon": "Օրգանական ածխածին",
+                "Trihalomethanes": "Տրիալոմեթաններ",
+                "Turbidity": "Պղտորություն",
+                "Potability": "Պիտանիություն"
+            }
+            download_df.columns = [reverse_column_map.get(col, col) for col in download_df.columns]
 
-        final_columns = [reverse_column_map.get(col, col) if language == "Հայերեն" else col for col in df.columns]
-        download_df.columns = final_columns + ["Potability"]
-
-        csv_output = download_df.to_csv(index=False).encode('utf-8')
+        # Ensure proper encoding for Armenian characters in CSV
+        csv_output = download_df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig')
         st.download_button(
             label=download_label,
             data=csv_output,
