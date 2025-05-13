@@ -4,11 +4,10 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import base64
-from datetime import datetime
-import pytz
 
 # Set page configuration
 st.set_page_config(page_title="Water Quality Prediction", page_icon="💧", layout="wide")
+
 
 # Background image
 def set_background(image_file):
@@ -47,6 +46,7 @@ def set_background(image_file):
     """
     st.markdown(bg_css, unsafe_allow_html=True)
 
+
 set_background("futuristic-science-lab-background_23-2148505015.jpg")
 
 # Load model and scaler
@@ -82,11 +82,6 @@ armenian_to_english = {
     "Պղտորություն": "Turbidity"
 }
 
-def get_current_timestamps():
-    now = datetime.now()
-    english_ts = now.strftime('%Y-%m-%d %H:%M:%S')
-    armenian_ts = now.strftime('%Y-%m-%d %H:%M:%S')  # Same format but labeled differently
-    return english_ts, armenian_ts
 
 def check_unsafe_parameters(input_values, safe_thresholds, input_labels, language):
     unsafe_parameters = []
@@ -101,6 +96,7 @@ def check_unsafe_parameters(input_values, safe_thresholds, input_labels, languag
                 reason = f"{param} շատ բարձր է (առավելագույն՝ {thresholds['max']}, ընթացիկ՝ {value})" if language == "Հայերեն" else f"{param} is too high (max: {thresholds['max']}, current: {value})"
                 unsafe_parameters.append(reason)
     return unsafe_parameters
+
 
 # Language selection
 language = st.radio("🌍 Select Language / Ընտրեք Լեզուն", ("English", "Հայերեն"))
@@ -127,7 +123,6 @@ if language == "English":
         "- UTF-8 or Latin-1 encoding",
         "- No header row or matching column names"
     ]
-    country_name = "Armenia"
 else:
     title = "💧 Ջրի Որակի Կանխատեսում"
     subtitle = "Ստուգեք՝ ջուրը խմելու համար անվտանգ է, թե ոչ։"
@@ -149,7 +144,6 @@ else:
         "- UTF-8 կամ Latin-1 կոդավորում",
         "- Առանց վերնագրի տողի կամ համապատասխան սյունակների անունների"
     ]
-    country_name = "Հայաստան"
 
 # Title and Subtitle
 st.markdown(f"<h1 style='text-align: center; font-size: 2.5em;'>{title}</h1>", unsafe_allow_html=True)
@@ -175,16 +169,6 @@ if st.button(predict_button):
     try:
         input_values_scaled = scaler.transform([input_values])
         prediction = model.predict(input_values_scaled)[0]
-        english_ts, armenian_ts = get_current_timestamps()
-        
-        df_result = pd.DataFrame([input_values], columns=input_labels)
-        df_result['Prediction'] = safe_text if prediction == 1 else unsafe_text
-        df_result['Timestamp (EN)'] = english_ts
-        df_result['Timestamp (HY)'] = armenian_ts
-        df_result['Country'] = country_name
-        
-        st.dataframe(df_result)
-
         if prediction == 1:
             st.success(safe_text)
         else:
@@ -201,33 +185,34 @@ uploaded_file = st.file_uploader(upload_help, type=["csv"])
 
 if uploaded_file is not None:
     try:
+        # Try multiple encodings
         try:
             df = pd.read_csv(uploaded_file)
         except UnicodeDecodeError:
-            uploaded_file.seek(0)
+            uploaded_file.seek(0)  # Reset file pointer
             df = pd.read_csv(uploaded_file, encoding='latin1')
 
+        # Validate shape
         if df.shape[1] != 9:
             st.error(column_warning)
             st.stop()
 
+        # Validate numeric data
         if not all([pd.api.types.is_numeric_dtype(df[col]) for col in df.columns]):
             st.error(numeric_warning)
             st.stop()
 
+        # Process data
         st.dataframe(df)
-        english_ts, armenian_ts = get_current_timestamps()
-        
         scaled_data = scaler.transform(df)
         preds = model.predict(scaled_data)
-        df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in preds]
-        df['Timestamp (EN)'] = english_ts
-        df['Timestamp (HY)'] = armenian_ts
-        df['Country'] = country_name
-        
+        df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in
+                            preds]
+
         st.success(success_label)
         st.dataframe(df)
 
+        # Prepare download
         csv_output = df.to_csv(index=False).encode('utf-8')
         st.download_button(
             label=download_label,
