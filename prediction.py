@@ -4,10 +4,11 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import base64
+from datetime import datetime
+import pytz  # For timezone handling
 
 # Set page configuration
 st.set_page_config(page_title="Water Quality Prediction", page_icon="💧", layout="wide")
-
 
 # Background image
 def set_background(image_file):
@@ -101,6 +102,13 @@ def check_unsafe_parameters(input_values, safe_thresholds, input_labels, languag
 # Language selection
 language = st.radio("🌍 Select Language / Ընտրեք Լեզուն", ("English", "Հայերեն"))
 
+# Country selection
+country = st.selectbox(
+    "🌎 Select Country / Ընտրեք Երկիրը",
+    ["Armenia", "USA", "Canada", "UK", "Germany", "France", "Other"],
+    index=0
+)
+
 # Localized UI content
 if language == "English":
     title = "💧 Water Quality Prediction"
@@ -169,6 +177,15 @@ if st.button(predict_button):
     try:
         input_values_scaled = scaler.transform([input_values])
         prediction = model.predict(input_values_scaled)[0]
+        
+        # Create a DataFrame with the results
+        result_df = pd.DataFrame([input_values], columns=input_labels)
+        result_df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if prediction == 1 else '❌ ' + unsafe_text.split('❌ ')[1]]
+        
+        # Add timestamp with timezone and country
+        result_df['Timestamp'] = datetime.now(pytz.utc).strftime('%Y-%m-%d %H:%M:%S %Z')
+        result_df['Country'] = country
+        
         if prediction == 1:
             st.success(safe_text)
         else:
@@ -176,6 +193,19 @@ if st.button(predict_button):
             reasons = check_unsafe_parameters(input_values, safe_thresholds, input_labels, language)
             for r in reasons:
                 st.write(f"- {r}")
+        
+        # Show the results with timestamp and country
+        st.dataframe(result_df)
+        
+        # Prepare download
+        csv_output = result_df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label=download_label,
+            data=csv_output,
+            file_name="water_quality_results.csv",
+            mime='text/csv'
+        )
+        
     except Exception as e:
         st.error(f"Prediction error: {e}")
 
@@ -206,14 +236,20 @@ if uploaded_file is not None:
         st.dataframe(df)
         scaled_data = scaler.transform(df)
         preds = model.predict(scaled_data)
-        df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in
-                            preds]
-
+        
+        # Create results DataFrame
+        results_df = df.copy()
+        results_df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in preds]
+        
+        # Add timestamp with timezone and country for each prediction
+        results_df['Timestamp'] = datetime.now(pytz.utc).strftime('%Y-%m-%d %H:%M:%S %Z')
+        results_df['Country'] = country
+        
         st.success(success_label)
-        st.dataframe(df)
+        st.dataframe(results_df)
 
         # Prepare download
-        csv_output = df.to_csv(index=False).encode('utf-8')
+        csv_output = results_df.to_csv(index=False).encode('utf-8')
         st.download_button(
             label=download_label,
             data=csv_output,
