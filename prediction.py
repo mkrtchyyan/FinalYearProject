@@ -4,7 +4,8 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 import base64
-from datetime import datetime  # <-- Added for timestamp
+from datetime import datetime
+import pytz
 
 # Set page configuration
 st.set_page_config(page_title="Water Quality Prediction", page_icon="💧", layout="wide")
@@ -81,6 +82,12 @@ armenian_to_english = {
     "Պղտորություն": "Turbidity"
 }
 
+def get_current_timestamps():
+    now = datetime.now()
+    english_ts = now.strftime('%Y-%m-%d %H:%M:%S')
+    armenian_ts = now.strftime('%Y-%m-%d %H:%M:%S')  # Same format but labeled differently
+    return english_ts, armenian_ts
+
 def check_unsafe_parameters(input_values, safe_thresholds, input_labels, language):
     unsafe_parameters = []
     for i, (param, value) in enumerate(zip(input_labels, input_values)):
@@ -120,6 +127,7 @@ if language == "English":
         "- UTF-8 or Latin-1 encoding",
         "- No header row or matching column names"
     ]
+    country_name = "Armenia"
 else:
     title = "💧 Ջրի Որակի Կանխատեսում"
     subtitle = "Ստուգեք՝ ջուրը խմելու համար անվտանգ է, թե ոչ։"
@@ -141,6 +149,7 @@ else:
         "- UTF-8 կամ Latin-1 կոդավորում",
         "- Առանց վերնագրի տողի կամ համապատասխան սյունակների անունների"
     ]
+    country_name = "Հայաստան"
 
 # Title and Subtitle
 st.markdown(f"<h1 style='text-align: center; font-size: 2.5em;'>{title}</h1>", unsafe_allow_html=True)
@@ -166,10 +175,14 @@ if st.button(predict_button):
     try:
         input_values_scaled = scaler.transform([input_values])
         prediction = model.predict(input_values_scaled)[0]
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        english_ts, armenian_ts = get_current_timestamps()
+        
         df_result = pd.DataFrame([input_values], columns=input_labels)
         df_result['Prediction'] = safe_text if prediction == 1 else unsafe_text
-        df_result['Timestamp'] = timestamp
+        df_result['Timestamp (EN)'] = english_ts
+        df_result['Timestamp (HY)'] = armenian_ts
+        df_result['Country'] = country_name
+        
         st.dataframe(df_result)
 
         if prediction == 1:
@@ -203,10 +216,15 @@ if uploaded_file is not None:
             st.stop()
 
         st.dataframe(df)
+        english_ts, armenian_ts = get_current_timestamps()
+        
         scaled_data = scaler.transform(df)
         preds = model.predict(scaled_data)
         df['Prediction'] = ['✅ ' + safe_text.split('✅ ')[1] if p == 1 else '❌ ' + unsafe_text.split('❌ ')[1] for p in preds]
-        df['Timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        df['Timestamp (EN)'] = english_ts
+        df['Timestamp (HY)'] = armenian_ts
+        df['Country'] = country_name
+        
         st.success(success_label)
         st.dataframe(df)
 
