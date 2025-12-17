@@ -127,7 +127,7 @@ if language == "English":
     input_labels = ["pH Level", "Hardness", "Solids", "Chloramines", "Sulfate",
                     "Conductivity", "Organic Carbon", "Trihalomethanes", "Turbidity"]
     predict_button = "Predict Water Quality"
-    safe_text = "✅ Safe to drink!"
+    safe_text = "✅ Safe to drink!" #would not look good w/out the emojies!!!
     unsafe_text = "❌ Unsafe! Do not drink!"
     upload_label = "📁 Upload CSV File"
     upload_help = "Upload a CSV file with 9 columns of water quality parameters"
